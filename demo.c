@@ -26,6 +26,12 @@
 #define GREEN_LED_FREQUENCY 600
 #define BLUE_LED_FREQUENCY 800
 
+#define BTN1_PRESSED 0x10000
+#define BTN2_PRESSED 0x20000
+#define BTN3_PRESSED 0x40000
+#define BTN4_PRESSED 0x80000
+#define BTN5_PRESSED 0x100000
+
 #define SPEAKER_PIN 6
 #define MAX_LEVEL 10
 
@@ -154,12 +160,7 @@ void * generateSequence(void *args){
 void *userInput(void *args){
     while(1){
         sem_wait(&sequenceReadWrite_control);
-        int sequenceIndex = 0;
-        int sequenceValid = 0;
-        while(*GPEDS != BTN5_PRESSED){
-            sequenceValid = compareInputToSequence(sequenceIndex);
-
-        }
+        
         sem_post(&sequenceReadWrite_control);
     }
 
@@ -172,7 +173,28 @@ void *userInput(void *args){
 void *checkSequence(void *args){
     while(1){
         sem_wait(&sequenceReadWrite_control);
-        
+        int sequenceIndex = 0;
+        int falseInput = 0;
+        while(*GPEDS != BTN5_PRESSED){
+            switch(*GPEDS){
+                case BTN1_PRESSED:
+                case BTN2_PRESSED:
+                case BTN3_PRESSED:
+                case BTN4_PRESSED:
+                    if(sequenceIndex < MAX_LEVEL){
+                        falseInput = 1;
+                    }
+                    else{
+                        falseInput = compareInputToSequence(sequenceIndex);
+                    }
+                    sequenceIndex++;
+                    *GPEDS = *GPEDS;
+                    break;
+            }
+        }
+        if(sequenceIndex != level && sequence[sequenceIndex] != -1 && falseInput != 0){
+
+        }
         sem_post(&sequenceReadWrite_control);
     }
     pthread_exit(0);
