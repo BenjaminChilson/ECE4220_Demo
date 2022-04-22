@@ -1,51 +1,10 @@
-#include <stdio.h>
-#include <pthread.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <stdint.h>
-#include <sys/timerfd.h>
-#include <time.h>			
-#include <semaphore.h>
-#include <wiringPi.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <softTone.h>
-
-#define NUM_THREADS 3
-#define RED_LED_PIN 2
-#define YELLOW_LED_PIN 3
-#define GREEN_LED_PIN 4
-#define BLUE_LED_PIN 5
-
-#define RED_LED_FREQUENCY 200
-#define YELLOW_LED_FREQUENCY 400
-#define GREEN_LED_FREQUENCY 600
-#define BLUE_LED_FREQUENCY 800
-
-#define BTN1_PRESSED 0x10000
-#define BTN2_PRESSED 0x20000
-#define BTN3_PRESSED 0x40000
-#define BTN4_PRESSED 0x80000
-#define BTN5_PRESSED 0x100000
-
-#define SPEAKER_PIN 6
-#define MAX_LEVEL 10
+#include "demo_functions.h"
 
 unsigned long * GPEDS;
 int *sequence;
 int level = 3;
 
 sem_t sequenceReadWrite_control;
-
-void *userInput(void *args);
-void *generateSequence(void *args);
-void *checkSequence(void *args);
-
-
 
 int decodePinFromLEDNumber(int ledNumber){
     switch(ledNumber){
@@ -91,7 +50,6 @@ void displayLightAndSound(int sequenceIndex){
     softToneWrite(SPEAKER_PIN, 0);
     delay(500);
 }
-void configurePins();
 
 int main(void){
 
@@ -114,48 +72,6 @@ int main(void){
         
     free(sequence);
 }
-
-void configurePins(){
-	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
-		pinMode(i, OUTPUT);
-		
-	for(int i = 16; i <= 20; ++i) { //Set all Buttons to Input & Enable Pull-Downs
-		pinMode(i, INPUT);
-		pullUpDnControl (i, PUD_DOWN);
-	}
-	
-	//Initialize GPEDS button-press detection register
-	int fd = open("/dev/mem", O_RDWR | O_SYNC);
-    unsigned long * ptr = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x3F200000);
-    GPEDS = ptr + 0x10;
-
-    //GPEDS will initially have garbage value. This will remove it and initialize to 0    
-    unsigned long temp = *GPEDS;
-    *GPEDS = temp;
-}
-
-void * generateSequence(void *args){
-    while(1){
-        sem_wait(&sequenceReadWrite_control);
-        sem_wait(&sequenceReadWrite_control);
-        time_t t;
-        
-        //Initializes random number generator
-        srand((unsigned) time(&t));
-
-        for(int i = 0; i < level; ++i){
-            sequence[i] = rand() % 4;
-        }
-        for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
-            displayLightAndSound(sequenceIndex);
-        }
-        sem_post(&sequenceReadWrite_control);
-        sem_post(&sequenceReadWrite_control);
-    }
-    
-    pthread_exit(0);
-}
-
 
 void *userInput(void *args){
     while(1){
