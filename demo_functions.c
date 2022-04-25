@@ -65,11 +65,14 @@ void displayLightAndSoundForLedNumber(int ledNumber){
 }
 
 void displayLightAndSoundSequence(int *sequenceArray){
+    printf("here3_1\n");
     int level = sequenceArray[-1];
+    printf("here3_2\n");
     for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
         int ledNumber = sequenceArray[sequenceIndex];
         int ledPin = decodePinFromLEDNumber(ledNumber);
         int frequency = decodeFrequencyFromLEDNumber(ledNumber);
+        printf("here3_3\n");
         
         digitalWrite(ledPin, HIGH);
         softToneWrite(SPEAKER_PIN, frequency);
