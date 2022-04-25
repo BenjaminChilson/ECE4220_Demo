@@ -6,8 +6,7 @@ int level = 3;
 
 sem_t sequenceReadWrite_control;
 
-void displayLightAndSound(int sequenceIndex){
-    int ledNumber = sequence[sequenceIndex];
+void displayLightAndSoundForLedNumber(int ledNumber){
     int ledPin = decodePinFromLEDNumber(ledNumber);
     int frequency = decodeFrequencyFromLEDNumber(ledNumber);
     
@@ -17,6 +16,23 @@ void displayLightAndSound(int sequenceIndex){
     digitalWrite(ledPin, LOW);
     softToneWrite(SPEAKER_PIN, 0);
     delay(500);
+}
+
+void displayLightAndSoundSequence(int *sequenceArray, int sequenceLength){
+    for(int sequenceIndex = 0; sequenceIndex < sequenceLength; ++sequenceIndex){
+        int level = min(sequenceArray[0], MAX_LEVEL);
+        sequenceArray++;
+        int ledNumber = sequenceArray[sequenceIndex];
+        int ledPin = decodePinFromLEDNumber(ledNumber);
+        int frequency = decodeFrequencyFromLEDNumber(ledNumber);
+        
+        digitalWrite(ledPin, HIGH);
+        softToneWrite(SPEAKER_PIN, frequency);
+        delay(1000);
+        digitalWrite(ledPin, LOW);
+        softToneWrite(SPEAKER_PIN, 0);
+        delay(500);
+    }   
 }
 
 int main(void){

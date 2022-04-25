@@ -4,9 +4,11 @@ void *userInput(void *args){
 }
 
 void *generateSequence(void *args){
+    int *sequence = (int *)args + 1;
+    int level = 3;
     while(1){
         sem_wait(&sequenceReadWrite_control);
-        sem_wait(&sequenceReadWrite_control);
+        sequence[-1] = level;
         time_t t;
         
         //Initializes random number generator
@@ -18,7 +20,7 @@ void *generateSequence(void *args){
         for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
             displayLightAndSound(sequenceIndex);
         }
-        sem_post(&sequenceReadWrite_control);
+        level++;
         sem_post(&sequenceReadWrite_control);
     }
     
@@ -76,8 +78,7 @@ int decodeFrequencyFromLEDNumber(int ledNumber){
     }
 }
 
-void displayLightAndSound(int sequenceIndex){
-    int ledNumber = sequence[sequenceIndex];
+void displayLightAndSoundForLedNumber(int ledNumber){
     int ledPin = decodePinFromLEDNumber(ledNumber);
     int frequency = decodeFrequencyFromLEDNumber(ledNumber);
     
@@ -87,6 +88,22 @@ void displayLightAndSound(int sequenceIndex){
     digitalWrite(ledPin, LOW);
     softToneWrite(SPEAKER_PIN, 0);
     delay(500);
+}
+
+void displayLightAndSoundSequence(int *sequenceArray){
+    int level = sequenceArray[-1];
+    for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
+        int ledNumber = sequenceArray[sequenceIndex];
+        int ledPin = decodePinFromLEDNumber(ledNumber);
+        int frequency = decodeFrequencyFromLEDNumber(ledNumber);
+        
+        digitalWrite(ledPin, HIGH);
+        softToneWrite(SPEAKER_PIN, frequency);
+        delay(1000);
+        digitalWrite(ledPin, LOW);
+        softToneWrite(SPEAKER_PIN, 0);
+        delay(500);
+    }  
 }
 
 void configurePins(){
