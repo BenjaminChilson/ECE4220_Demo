@@ -89,7 +89,7 @@ void displayLightAndSound(int sequenceIndex){
     delay(500);
 }
 
-void configurePins(){
+void configurePins(unsigned long *GPEDS){
 	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
 		pinMode(i, OUTPUT);
 		
@@ -104,6 +104,18 @@ void configurePins(){
     GPEDS = ptr + 0x10;
 
     //GPEDS will initially have garbage value. This will remove it and initialize to 0    
-    unsigned long temp = *GPEDS;
-    *GPEDS = temp;
+    resetGPEDS(GPEDS);
 }
+
+
+void resetGPEDS(unsigned long *GPEDS){
+	unsigned long temp = *GPEDS;
+	*GPEDS = temp;
+}
+
+
+
+
+
+
+
