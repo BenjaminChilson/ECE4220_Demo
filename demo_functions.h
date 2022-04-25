@@ -43,10 +43,10 @@ void *generateSequence(void *args);
 int checkSequence(int *input);
 int decodePinFromLEDNumber(int ledNumber);
 int decodeFrequencyFromLEDNumber(int ledNumber);
-void displayLightAndSound(int sequenceIndex);
+void displayLightAndSoundForLedNumber(int ledNumber);
+void displayLightAndSoundSequence(int *sequenceArray);
 void configurePins(unsigned long *GPEDS);
 void resetGPEDS(unsigned long *GPEDS);
-
 
 
 
