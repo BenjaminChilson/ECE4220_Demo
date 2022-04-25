@@ -15,7 +15,7 @@
 #include <sys/mman.h>
 #include <softTone.h>
 
-#define NUM_THREADS 3
+#define NUM_THREADS 2
 #define RED_LED_PIN 2
 #define YELLOW_LED_PIN 3
 #define GREEN_LED_PIN 4
@@ -35,11 +35,12 @@
 #define SPEAKER_PIN 6
 #define MAX_LEVEL 10
 
-//Thread functions
+//Thread Functions
 void *userInput(void *args);
 void *generateSequence(void *args);
-void *checkSequence(void *args);
 
+//Helper Functions
+int checkSequence(int *input);
 int decodePinFromLEDNumber(int ledNumber);
 int decodeFrequencyFromLEDNumber(int ledNumber);
 void displayLightAndSound(int sequenceIndex);

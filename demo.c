@@ -6,38 +6,6 @@ int level = 3;
 
 sem_t sequenceReadWrite_control;
 
-int decodePinFromLEDNumber(int ledNumber){
-    switch(ledNumber){
-        case 0:
-            return RED_LED_PIN;
-        case 1:
-            return YELLOW_LED_PIN;
-        case 2:
-            return GREEN_LED_PIN;
-        case 3:
-            return BLUE_LED_PIN;
-        default:
-            //led number passed is not an accepted value
-            return -1;
-    }
-}
-
-int decodeFrequencyFromLEDNumber(int ledNumber){
-    switch(ledNumber){
-        case 0:
-            return RED_LED_FREQUENCY;
-        case 1:
-            return YELLOW_LED_FREQUENCY;
-        case 2:
-            return GREEN_LED_FREQUENCY;
-        case 3:
-            return BLUE_LED_FREQUENCY;
-        default:
-            //led number passed is not an accepted value
-            return -1;
-    }
-}
-
 void displayLightAndSound(int sequenceIndex){
     int ledNumber = sequence[sequenceIndex];
     int ledPin = decodePinFromLEDNumber(ledNumber);
@@ -85,36 +53,6 @@ void *userInput(void *args){
 }
 
 
-
-void *checkSequence(void *args){
-    while(1){
-        sem_wait(&sequenceReadWrite_control);
-        int sequenceIndex = 0;
-        int falseInput = 0;
-        while(*GPEDS != BTN5_PRESSED){
-            switch(*GPEDS){
-                case BTN1_PRESSED:
-                case BTN2_PRESSED:
-                case BTN3_PRESSED:
-                case BTN4_PRESSED:
-                    if(sequenceIndex < MAX_LEVEL){
-                        falseInput = 1;
-                    }
-                    else{
-                        falseInput = compareInputToSequence(sequenceIndex);
-                    }
-                    sequenceIndex++;
-                    *GPEDS = *GPEDS;
-                    break;
-            }
-        }
-        if(sequenceIndex != level && sequence[sequenceIndex] != -1 && falseInput != 0){
-
-        }
-        sem_post(&sequenceReadWrite_control);
-    }
-    pthread_exit(0);
-}
 
 
 
