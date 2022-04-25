@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <softTone.h>
+#include <limits.h>
 
 #define NUM_THREADS 2
 #define RED_LED_PIN 2
@@ -45,8 +46,9 @@ int decodePinFromLEDNumber(int ledNumber);
 int decodeFrequencyFromLEDNumber(int ledNumber);
 void displayLightAndSoundForLedNumber(int ledNumber);
 void displayLightAndSoundSequence(int *sequenceArray);
-void configurePins(unsigned long *GPEDS);
-void resetGPEDS(unsigned long *GPEDS);
+void configurePins();
+int checkGPEDS();
+void countDown();
 
 
 
