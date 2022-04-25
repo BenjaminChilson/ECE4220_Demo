@@ -22,14 +22,24 @@ int main(void){
     sem_init(&sequenceReadWrite_control, 0 , 1);
 	  
     pthread_t threads[NUM_THREADS];
+    pthread_attr_t a;
+    size_t stacksize;
+    pthread_attr_setstacksize(&a, 10000000);
+    pthread_attr_getstacksize(&a, &stacksize);
+    printf("Current stack size = %d\n", stacksize);
+
     printf("here4\n");
-    //pthread_create(&(threads[0]), (void *)sequence, generateSequence, &(threads[0]));
+    *GPEDS = *GPEDS;
+    pthread_create(&(threads[0]), NULL, (void *)&generateSequence, (void *)sequence);
+    int b = pthread_create(&(threads[1]), NULL, (void *)&userInput, (void *)sequence);
+    printf("returns: %d\n", b);
     printf("here5\n");
-    pthread_create(&(threads[1]), (void *)sequence, userInput, &(threads[1]));
+    
     printf("here6\n");
+    pthread_join(threads[0], NULL);
     pthread_join(threads[1], NULL);
-    //for(int i = 0; i < NUM_THREADS; ++i)
-        //pthread_join(threads[i], NULL);
+    // for(int i = 0; i < NUM_THREADS; ++i)
+    //     pthread_join(threads[i], NULL);
         
     free(sequence);
 }
@@ -46,9 +56,13 @@ void *userInput(void *args){
         sem_wait(&sequenceReadWrite_control);
         int i = 0;
         int ledNumber = -1;
+        //printf("here1_4\n");
         while(*GPEDS != BTN5_PRESSED){
 			switch(*GPEDS){
-				case BTN1_PRESSED:
+				case 0:
+                    ledNumber = -1;
+                    break;
+                case BTN1_PRESSED:
 					ledNumber = 0;
 					break;
 				
@@ -70,6 +84,7 @@ void *userInput(void *args){
 					break;
 				
 			}
+            //printf("here1_5\n");
 			if(ledNumber != -1){
 				displayLightAndSoundForLedNumber(ledNumber);
 				if(i < MAX_LEVEL){
@@ -77,8 +92,12 @@ void *userInput(void *args){
                 }
 				i++;
 			}
-			resetGPEDS(GPEDS);
+            //printf("here1_6\n");
+			*GPEDS = *GPEDS;
+            //printf("here1_7\n");
         }
+        *GPEDS = *GPEDS;
+
         inputArr[-1] = i;
         checkSequence(inputArr, actualSeq);
         sem_post(&sequenceReadWrite_control);
@@ -108,25 +127,31 @@ void *generateSequence(void *args){
         level++;
         printf("here2_5\n");
         sem_post(&sequenceReadWrite_control);
-        printf("here2_6\n");
+        //printf("here2_6\n");
     }
     
     pthread_exit(0);
 }
 
+void configurePins(){
+	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
+		pinMode(i, OUTPUT);
+		
+	for(int i = 16; i <= 20; ++i) { //Set all Buttons to Input & Enable Pull-Downs
+		pinMode(i, INPUT);
+		pullUpDnControl (i, PUD_DOWN);
+	}
+	
+	//Initialize GPEDS button-press detection register
+	int fd = open("/dev/mem", O_RDWR | O_SYNC);
+    unsigned long * ptr = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x3F200000);
+    GPEDS = ptr + 0x10;
 
+    //GPEDS will initially have garbage value. This will remove it and initialize to 0    
+    *GPEDS = *GPEDS;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void resetGPEDS(){
+	unsigned long temp = *GPEDS;
+	*GPEDS = temp;
+}

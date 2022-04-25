@@ -38,15 +38,15 @@
 //Thread Functions
 void *userInput(void *args);
 void *generateSequence(void *args);
-
+void resetGPEDS();
 //Helper Functions
 int checkSequence(int *input, int *actualSeq);
 int decodePinFromLEDNumber(int ledNumber);
 int decodeFrequencyFromLEDNumber(int ledNumber);
 void displayLightAndSoundForLedNumber(int ledNumber);
 void displayLightAndSoundSequence(int *sequenceArray);
-void configurePins(unsigned long *GPEDS);
-void resetGPEDS(unsigned long *GPEDS);
+void configurePins();
+
 
 
 

@@ -83,30 +83,6 @@ void displayLightAndSoundSequence(int *sequenceArray){
     }  
 }
 
-void configurePins(unsigned long *GPEDS){
-	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
-		pinMode(i, OUTPUT);
-		
-	for(int i = 16; i <= 20; ++i) { //Set all Buttons to Input & Enable Pull-Downs
-		pinMode(i, INPUT);
-		pullUpDnControl (i, PUD_DOWN);
-	}
-	
-	//Initialize GPEDS button-press detection register
-	int fd = open("/dev/mem", O_RDWR | O_SYNC);
-    unsigned long * ptr = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x3F200000);
-    GPEDS = ptr + 0x10;
-
-    //GPEDS will initially have garbage value. This will remove it and initialize to 0    
-    resetGPEDS(GPEDS);
-}
-
-
-void resetGPEDS(unsigned long *GPEDS){
-	unsigned long temp = *GPEDS;
-	*GPEDS = temp;
-}
-
 
 
 
