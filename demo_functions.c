@@ -1,44 +1,18 @@
 #include "demo_functions.h"
 
-void *userInput(void *args){
-}
-
-void *generateSequence(void *args){
-    int *sequence = (int *)args + 1;
-    int level = 3;
-    while(1){
-        sem_wait(&sequenceReadWrite_control);
-        sequence[-1] = level;
-        time_t t;
-        
-        //Initializes random number generator
-        srand((unsigned) time(&t));
-
-        for(int i = 0; i < level; ++i){
-            sequence[i] = rand() % 4;
-        }
-        for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
-            displayLightAndSound(sequenceIndex);
-        }
-        level++;
-        sem_post(&sequenceReadWrite_control);
-    }
-    
-    pthread_exit(0);
-}
-
 //Returns 0 if sequence does not match, 1 otherwise
-int checkSequence(int *input){
-	int arr_length = input[0];
-	input++;
-    int index = 0;
+int checkSequence(int *inputSeq, int *actualSeq){
+	int level = actualSeq[-1];
+    
+    int arr_length = inputSeq[0];
+	inputSeq++;
     
     if(arr_length != level){
     	return 0;
     }
     
     for(int i = 0; i < arr_length; i++){
-    	if(input[i] != sequence[i]){
+    	if(inputSeq[i] != actualSeq[i]){
     		return 0;
     	}
     }

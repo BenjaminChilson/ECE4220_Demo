@@ -20,8 +20,8 @@ int main(void){
 	  
     pthread_t threads[NUM_THREADS];
     
-    pthread_create(&(threads[0]), sequence, generateSequence, &(threads[0]));
-    pthread_create(&(threads[1]), NULL, userInput, &(threads[1]));
+    pthread_create(&(threads[0]), (void *)sequence, generateSequence, &(threads[0]));
+    pthread_create(&(threads[1]), (void *)sequence, userInput, &(threads[1]));
     
     for(int i = 0; i < NUM_THREADS; ++i)
         pthread_join(threads[i], NULL);
@@ -29,12 +29,15 @@ int main(void){
     free(sequence);
 }
 
+
 void *userInput(void *args){
-	int inputArr[MAX_LEVEL +1];
+    int *actualSeq = (int *)args;
+	int *inputArr = malloc((MAX_LEVEL + 1) * sizeof(int));
 	inputArr++;
     while(1){
         sem_wait(&sequenceReadWrite_control);
         int i = 0;
+        int ledNumber = -1;
         while(*GPEDS != BTN5_PRESSED){
 			switch(*GPEDS){
 				case BTN1_PRESSED:
@@ -61,16 +64,40 @@ void *userInput(void *args){
 			}
 			if(ledNumber != -1){
 				displayLightAndSoundForLedNumber(ledNumber);
-				inputArr[i] = ledNumber;
+				if(i < MAX_LEVEL){
+                    inputArr[i] = ledNumber;
+                }
 				i++;
 			}
 			resetGPEDS(GPEDS);
         }
-        
+        inputArr[-1] = i;
+        checkSequence(inputArr, actualSeq);
         sem_post(&sequenceReadWrite_control);
     }
-	inputArr[-1] = i;
+    free(inputArr);
+    pthread_exit(0);
+}
 
+void *generateSequence(void *args){
+    int *sequence = (int *)args + 1;
+    int level = 3;
+    while(1){
+        sem_wait(&sequenceReadWrite_control);
+        sequence[-1] = level;
+        time_t t;
+        
+        //Initializes random number generator
+        srand((unsigned) time(&t));
+
+        for(int i = 0; i < level; ++i){
+            sequence[i] = rand() % 4;
+        }
+        displayLightAndSoundSequence(sequence);
+        level++;
+        sem_post(&sequenceReadWrite_control);
+    }
+    
     pthread_exit(0);
 }
 

@@ -40,7 +40,7 @@ void *userInput(void *args);
 void *generateSequence(void *args);
 
 //Helper Functions
-int checkSequence(int *input);
+int checkSequence(int *input, int *actualSeq);
 int decodePinFromLEDNumber(int ledNumber);
 int decodeFrequencyFromLEDNumber(int ledNumber);
 void displayLightAndSoundForLedNumber(int ledNumber);
