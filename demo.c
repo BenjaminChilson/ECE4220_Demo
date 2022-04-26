@@ -69,26 +69,33 @@ void *userInput(void *args){
 void *generateSequence(void *args){
     int *sequence = (int *)args;
     int level = 3;
-    while(level <= MAX_LEVEL){
+    time_t t;
+        
+    //Initializes random number generator
+    srand((unsigned) time(&t));
+
+    while(level - 2 <= MAX_LEVEL){
         sem_wait(&sequenceReadWrite_control);
         sequence[-1] = level;
-        time_t t;
-        
-        //Initializes random number generator
-        srand((unsigned) time(&t));
-        for(int i = 0; i < level; ++i){
-            sequence[i] = rand() % 4;
+        if(level <= 3){
+            for(int i = 0; i < level; ++i){
+                sequence[i] = rand() % 4;
+            }
         }
-        
+        else{
+            sequence[level - 1] = rand() % 4;
+        }
+
         countDown();
         displayLightAndSoundSequence(sequence);
         level++;
         sem_post(&sequenceReadWrite_control);
         usleep(10000);
     }
+    sem_wait(&sequenceReadWrite_control);
     printf("Fantastic! You have completed the tutorial.");
     printf("Please enter your mom's credit card information to continue playing.\n");
-    
+    sem_post(&sequenceReadWrite_control);
     pthread_exit(0);
 }
 
