@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <softTone.h>
+#include <limits.h>
 
 #define NUM_THREADS 2
 #define RED_LED_PIN 2
@@ -38,7 +39,6 @@
 //Thread Functions
 void *userInput(void *args);
 void *generateSequence(void *args);
-void resetGPEDS();
 //Helper Functions
 int checkSequence(int *input, int *actualSeq);
 int decodePinFromLEDNumber(int ledNumber);
@@ -46,7 +46,11 @@ int decodeFrequencyFromLEDNumber(int ledNumber);
 void displayLightAndSoundForLedNumber(int ledNumber);
 void displayLightAndSoundSequence(int *sequenceArray);
 void configurePins();
+void setupBoard();
+int initializeGPEDS();
 
+int checkGPEDS();
+void countDown();
 
 
 

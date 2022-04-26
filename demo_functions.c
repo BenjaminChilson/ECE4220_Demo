@@ -4,8 +4,7 @@
 int checkSequence(int *inputSeq, int *actualSeq){
 	int level = actualSeq[-1];
     
-    int arr_length = inputSeq[0];
-	inputSeq++;
+    int arr_length = inputSeq[-1];
     
     if(arr_length != level){
     	return 0;
@@ -65,14 +64,11 @@ void displayLightAndSoundForLedNumber(int ledNumber){
 }
 
 void displayLightAndSoundSequence(int *sequenceArray){
-    printf("here3_1\n");
     int level = sequenceArray[-1];
-    printf("here3_2\n");
     for(int sequenceIndex = 0; sequenceIndex < level; ++sequenceIndex){
         int ledNumber = sequenceArray[sequenceIndex];
         int ledPin = decodePinFromLEDNumber(ledNumber);
         int frequency = decodeFrequencyFromLEDNumber(ledNumber);
-        printf("here3_3\n");
         
         digitalWrite(ledPin, HIGH);
         softToneWrite(SPEAKER_PIN, frequency);
@@ -83,9 +79,21 @@ void displayLightAndSoundSequence(int *sequenceArray){
     }  
 }
 
+void countDown(){
+	for(int i = 3; i > 0; --i){
+		printf("%d...\n", i);
+		for(int j = 2; j <= 5; ++j)
+			digitalWrite(j, HIGH);
+		delay(400);
+		for(int j = 2; j <= 5; ++j)
+			digitalWrite(j, LOW);
+		delay(400);
+	}
+}
 
-
-
-
-
-
+void setupBoard(){
+    wiringPiSetup();
+	wiringPiSetupGpio();
+	softToneCreate(SPEAKER_PIN);
+	configurePins();	//Necessary initial setup functions
+}
