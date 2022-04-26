@@ -4,26 +4,18 @@ unsigned long * GPEDS;
 sem_t sequenceReadWrite_control;
 
 int main(void){
-	setupBoard();
-	
-	
+    setupBoard();
+    int fd = initializeGPEDS();
+    int *sequence = initializeSequenceArray(3);
 
-	//Define starting sequence whose initial length is stored in index -1,
-	//but has space for an end-game sequence of length MAX_LEVEL
-	int *sequence = malloc(MAX_LEVEL + 1 * sizeof(int));
-    if(!sequence){
-        printf("malloc failed!!!!\n");
-    }
-	sequence[0] = 3;
-	sequence++;
-	
+    //initialize semiphore utilized for thread control
     sem_init(&sequenceReadWrite_control, 0 , 1);
-	  
-    pthread_t threads[NUM_THREADS];
 
+    pthread_t threads[NUM_THREADS];
+    //spin up threads executing the needed methods of the game
     pthread_create(&(threads[0]), NULL, (void *)&generateSequence, (void *)sequence);
     pthread_create(&(threads[1]), NULL, (void *)&userInput, (void *)sequence);
-    
+    //collect all outstanding threads
     for(int i = 0; i < NUM_THREADS; ++i){
         pthread_join(threads[i], NULL);
     }
@@ -33,14 +25,10 @@ int main(void){
     pthread_exit(NULL);
 }
 
-
-
-
 void *userInput(void *args){
 
     int *actualSeq = (int *)args;
-	int *inputArr = malloc((MAX_LEVEL + 1) * sizeof(int));
-	inputArr++;
+	int *inputSeq = initializeSequenceArray(0);
 	
     while(1){
         sem_wait(&sequenceReadWrite_control);
@@ -56,16 +44,16 @@ void *userInput(void *args){
 			if(ledNumber != -1){
 				displayLightAndSoundForLedNumber(ledNumber);
 				if(i < MAX_LEVEL){
-                    inputArr[i] = ledNumber;
+                    inputSeq[i] = ledNumber;
                 }
 				i++;
 			}
         }
         *GPEDS = BTN5_PRESSED;
-        inputArr[-1] = i;
+        inputSeq[-1] = i;
         
         
-        if(checkSequence(inputArr, actualSeq)){
+        if(checkSequence(inputSeq, actualSeq)){
 			printf("Level %d completed!\n", actualSeq[-1] - 2);
 		} else {
 			printf("Failure at Level %d!\n", actualSeq[-1] - 2);
@@ -74,7 +62,7 @@ void *userInput(void *args){
         sem_post(&sequenceReadWrite_control);
         usleep(10000);
     }
-    free(inputArr);
+    free(inputSeq);
     pthread_exit(0);
 }
 
@@ -149,4 +137,13 @@ int initializeGPEDS(){
     GPEDS = ptr + 0x10;
     
     return fd;
+}
+
+int *initializeSequenceArray(int sequenceCount){
+    //Define starting sequence whose initial length is stored in index -1,
+	//but has space for an end-game sequence of length MAX_LEVEL
+	int *sequence = malloc(MAX_LEVEL + 1 * sizeof(int));
+	sequence[0] = sequenceCount;
+	sequence++;
+    return sequence;
 }

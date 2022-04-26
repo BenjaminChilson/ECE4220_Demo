@@ -48,6 +48,7 @@ void displayLightAndSoundSequence(int *sequenceArray);
 void configurePins();
 void setupBoard();
 int initializeGPEDS();
+int *initializeSequenceArray();
 
 int checkGPEDS();
 void countDown();
