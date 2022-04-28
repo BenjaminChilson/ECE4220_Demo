@@ -50,8 +50,11 @@ void setupBoard();
 int initializeGPEDS();
 int *initializeSequenceArray();
 
-int checkGPEDS();
-void countDown();
+int checkGPEDS(int GPEDS);
+void countDown(int level);
+void displayStartupMenu();
+void displayFailureMenu();
+void displayVictoryMenu();
 
 
 

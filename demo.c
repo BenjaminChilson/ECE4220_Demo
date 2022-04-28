@@ -10,6 +10,7 @@ int main(void){
 
     //initialize semiphore utilized for thread control
     sem_init(&sequenceReadWrite_control, 0 , 1);
+    displayFailureMenu();
 
     pthread_t threads[NUM_THREADS];
     //spin up threads executing the needed methods of the game
@@ -18,8 +19,10 @@ int main(void){
     //collect all outstanding threads
     for(int i = 0; i < NUM_THREADS; ++i){
         pthread_join(threads[i], NULL);
+        usleep(10000);
     }
 
+	//necessary memory cleanup at program termination
     free(sequence);
     close(fd);
     pthread_exit(NULL);
@@ -30,16 +33,17 @@ void *userInput(void *args){
     int *actualSeq = (int *)args;
 	int *inputSeq = initializeSequenceArray(0);
 	
+	//delay necessary so that userInput is not the first thread to activate
+	usleep(10000);
     while(1){
         sem_wait(&sequenceReadWrite_control);
         int i = 0;
         int ledNumber = -1;
         while(*GPEDS != BTN5_PRESSED){
-        
-			ledNumber = checkGPEDS();
-			
 			//reset GPEDS Register
 			*GPEDS = *GPEDS;
+			
+			ledNumber = checkGPEDS(*GPEDS);
 			
 			if(ledNumber != -1){
 				displayLightAndSoundForLedNumber(ledNumber);
@@ -73,9 +77,11 @@ void *generateSequence(void *args){
         
     //Initializes random number generator
     srand((unsigned) time(&t));
-
+	
+	displayStartupMenu();
     while(level - 2 <= MAX_LEVEL){
         sem_wait(&sequenceReadWrite_control);
+        
         sequence[-1] = level;
         if(level <= 3){
             for(int i = 0; i < level; ++i){
@@ -86,7 +92,7 @@ void *generateSequence(void *args){
             sequence[level - 1] = rand() % 4;
         }
 
-        countDown();
+        countDown(level - 2);
         displayLightAndSoundSequence(sequence);
         level++;
         sem_post(&sequenceReadWrite_control);
@@ -99,44 +105,6 @@ void *generateSequence(void *args){
     pthread_exit(0);
 }
 
-void configurePins(){
-	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
-		pinMode(i, OUTPUT);
-		
-	for(int i = 16; i <= 20; ++i) { //Set all Buttons to Input & Enable Pull-Downs
-		pinMode(i, INPUT);
-		pullUpDnControl (i, PUD_DOWN);
-	}
-}
-
-int checkGPEDS(){
-	switch(*GPEDS){
-		case 0:
-			return -1;
-			break;
-		case BTN1_PRESSED:
-			return 0;
-			break;
-		
-		case BTN2_PRESSED:
-			return 1;
-			break;
-		
-		case BTN3_PRESSED:
-			return 2;
-			break;
-		
-		case BTN4_PRESSED:
-			return 3;
-			break;
-		
-		default:
-			printf("Invalid input, please try again.\n");
-			return -1;
-			break;
-	}
-}
-
 int initializeGPEDS(){
     //Initialize GPEDS button-press detection register
 	int fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -146,11 +114,12 @@ int initializeGPEDS(){
     return fd;
 }
 
-int *initializeSequenceArray(int sequenceCount){
-    //Define starting sequence whose initial length is stored in index -1,
-	//but has space for an end-game sequence of length MAX_LEVEL
-	int *sequence = malloc(MAX_LEVEL + 1 * sizeof(int));
-	sequence[0] = sequenceCount;
-	sequence++;
-    return sequence;
-}
+
+
+
+
+
+
+
+
+

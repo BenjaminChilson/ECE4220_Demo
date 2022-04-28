@@ -79,15 +79,17 @@ void displayLightAndSoundSequence(int *sequenceArray){
     }  
 }
 
-void countDown(){
+void countDown(int level){
+	printf("Level %d starting in\n", level);
+
 	for(int i = 3; i > 0; --i){
 		printf("%d...\n", i);
 		for(int j = 2; j <= 5; ++j)
 			digitalWrite(j, HIGH);
-		delay(400);
+		delay(500);
 		for(int j = 2; j <= 5; ++j)
 			digitalWrite(j, LOW);
-		delay(400);
+		delay(500);
 	}
 }
 
@@ -97,3 +99,129 @@ void setupBoard(){
 	softToneCreate(SPEAKER_PIN);
 	configurePins();	//Necessary initial setup functions
 }
+
+void configurePins(){
+	for(int i = 2; i <= 5; ++i) //Set all LEDs to Output
+		pinMode(i, OUTPUT);
+		
+	for(int i = 16; i <= 20; ++i) { //Set all Buttons to Input & Enable Pull-Downs
+		pinMode(i, INPUT);
+		pullUpDnControl (i, PUD_DOWN);
+	}
+}
+
+int *initializeSequenceArray(int sequenceCount){
+    //Define starting sequence whose initial length is stored in index -1,
+	//but has space for an end-game sequence of length MAX_LEVEL
+	int *sequence = malloc(MAX_LEVEL + 1 * sizeof(int));
+	sequence[0] = sequenceCount;
+	sequence++;
+    return sequence;
+}
+
+int checkGPEDS(int GPEDS){
+	switch(GPEDS){
+		case 0:
+			return -1;
+			break;
+		case BTN1_PRESSED:
+			return 0;
+			break;
+		
+		case BTN2_PRESSED:
+			return 1;
+			break;
+		
+		case BTN3_PRESSED:
+			return 2;
+			break;
+		
+		case BTN4_PRESSED:
+			return 3;
+			break;
+			
+		case BTN5_PRESSED:
+			return -1;
+			break;
+		
+		default:
+			printf("Invalid input, please try again.\n");
+			return -1;
+			break;
+	}
+}
+
+void displayStartupMenu(){
+	printf("*********************************\n"); //33 stars
+	
+	printf("*\tSimon Says Game\t\t*\n");
+	printf("*\tBy Brennan Williams &\t*\n");
+	printf("*\tBenjamin Chilson\t*\n");
+	
+	printf("*********************************\n"); //33 stars
+}
+
+void displayFailureMenu(){
+	int lineWidth = 24;
+	for(int starCount = 2; starCount < lineWidth; starCount += 4){
+		for(int i = 0; i < starCount / 2; i++){
+			printf("*");
+		}
+		for(int i = 0; i < lineWidth - starCount; i++){
+			printf(" ");
+		}
+		for(int i = 0; i < starCount / 2; i++){
+			printf("*");
+		}
+		printf("\n");
+	}
+	
+	for(int i = 0; i < (lineWidth - 12) / 2; i++){
+		printf("*");
+	}
+	
+	printf(" You Failed ");
+	
+	for(int i = 0; i < (lineWidth - 12) / 2; i++){
+		printf("*");
+	}
+	printf("\n");
+	
+	for(int starCount = lineWidth - 2; starCount > 0; starCount -= 4){
+		for(int i = 0; i < starCount / 2; i++){
+			printf("*");
+		}
+		for(int i = 0; i < lineWidth - starCount; i++){
+			printf(" ");
+		}
+		for(int i = 0; i < starCount / 2; i++){
+			printf("*");
+		}
+		printf("\n");
+	}
+}
+
+void displayVictoryMeny(){
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
