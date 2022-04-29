@@ -158,7 +158,7 @@ void displayStartupMenu(){
 	printf("*\tBy Brennan Williams &\t*\n");
 	printf("*\tBenjamin Chilson\t*\n");
 	
-	printf("*********************************\n"); //33 stars
+	printf("**** Press Button 1 to Begin ****\n"); //33 stars
 }
 
 void displayFailureMenu(){
@@ -201,10 +201,76 @@ void displayFailureMenu(){
 	}
 }
 
-void displayVictoryMeny(){
+void displayVictoryMenu(){
+	int lineWidth = 24;
 	
+	for(int starCount = lineWidth - 2; starCount > 0; starCount -= 4){
+		for(int i = 0; i < starCount / 2; i++){
+			printf(" ");
+		}
+		for(int i = 0; i < lineWidth - starCount; i++){
+			printf("*");
+		}
+		for(int i = 0; i < starCount / 2; i++){
+			printf(" ");
+		}
+		printf("\n");
+	}
+	for(int i = 0; i < (lineWidth - 10) / 2; i++){
+		printf("*");
+	}
+	
+	printf(" You Win! ");
+	
+	for(int i = 0; i < (lineWidth - 10) / 2; i++){
+		printf("*");
+	}
+	printf("\n");
+	for(int starCount = 2; starCount < lineWidth; starCount += 4){
+		for(int i = 0; i < starCount / 2; i++){
+			printf(" ");
+		}
+		for(int i = 0; i < lineWidth - starCount; i++){
+			printf("*");
+		}
+		for(int i = 0; i < starCount / 2; i++){
+			printf(" ");
+		}
+		printf("\n");
+	}
 }
 
+void displayOptionsMenu(){
+	printf("*********************************\n"); //33 stars
+
+	printf("*   Options:\t\t\t*\n");
+	printf("*   Button 1 to return to menu\t*\n");
+	printf("*   Button 2 to exit game\t*\n");
+
+	printf("*********************************\n"); //33 stars
+}
+
+void displayMenu(int state){
+
+	switch(state){
+		case 0:
+			displayStartupMenu();
+			break;
+		case 1:
+			displayFailureMenu();
+			displayOptionsMenu();
+			break;
+		case 2:
+			displayVictoryMenu();
+			displayOptionsMenu();
+			break;
+		case 3:
+			break;
+		default:
+			printf("Error, invalid game state\n");
+			break;
+	}
+}
 
 
 

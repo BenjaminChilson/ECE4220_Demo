@@ -33,6 +33,12 @@
 #define BTN4_PRESSED 0x80000
 #define BTN5_PRESSED 0x100000
 
+#define START 0
+#define FAIL 1
+#define WIN 2
+#define EXIT 3
+#define RUNNING 4
+
 #define SPEAKER_PIN 6
 #define MAX_LEVEL 10
 
@@ -55,6 +61,8 @@ void countDown(int level);
 void displayStartupMenu();
 void displayFailureMenu();
 void displayVictoryMenu();
+void displayOptionsMenu();
+void displayMenu(int state);
 
 
 
