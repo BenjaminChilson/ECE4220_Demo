@@ -57,10 +57,10 @@ void displayLightAndSoundForLedNumber(int ledNumber){
     
     digitalWrite(ledPin, HIGH);
     softToneWrite(SPEAKER_PIN, frequency);
-    delay(1000);
+    delay(600);
     digitalWrite(ledPin, LOW);
     softToneWrite(SPEAKER_PIN, 0);
-    delay(500);
+    delay(300);
 }
 
 void displayLightAndSoundSequence(int *sequenceArray){
@@ -72,10 +72,10 @@ void displayLightAndSoundSequence(int *sequenceArray){
         
         digitalWrite(ledPin, HIGH);
         softToneWrite(SPEAKER_PIN, frequency);
-        delay(1000);
+        delay(600);
         digitalWrite(ledPin, LOW);
         softToneWrite(SPEAKER_PIN, 0);
-        delay(500);
+        delay(300);
     }  
 }
 
@@ -146,7 +146,7 @@ int checkGPEDS(int GPEDS){
 		
 		default:
 			printf("Invalid input, please try again.\n");
-			return -1;
+			return -2;
 			break;
 	}
 }
@@ -265,6 +265,7 @@ void displayMenu(int state){
 			displayOptionsMenu();
 			break;
 		case 3:
+		case 4:
 			break;
 		default:
 			printf("Error, invalid game state\n");

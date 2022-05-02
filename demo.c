@@ -42,19 +42,43 @@ void *userInput(void *args){
         if(state == RUNNING){
 		    int i = 0;
 		    int ledNumber = -1;
+		    
+		    //necessary inital reset of detection register
+		    *GPEDS = *GPEDS;
 		    while(*GPEDS != BTN5_PRESSED){
-				//reset GPEDS Register
-				*GPEDS = *GPEDS;
 			
-				ledNumber = checkGPEDS(*GPEDS);
+				int val = checkGPEDS(*GPEDS);
+				switch(val){
+					//invalid input
+					case -2:
+						*GPEDS = *GPEDS;
+					//either no input or Button 5 Pressed
+					//We don't want to reset GPEDS in this case
+					case -1:
+						ledNumber = val;
+						break;
+					//Button 1 pressed
+					case 0:
+					//Button 2 pressed
+					case 1:
+					//Button 3 pressed
+					case 2:
+					//Button 4 pressed
+					case 3:
+						ledNumber = val;
+						*GPEDS = *GPEDS;
+						break;
+				}
 			
-				if(ledNumber != -1){
+				//Condition is > -1 because -2 is a possible value
+				if(ledNumber > -1){
 					displayLightAndSoundForLedNumber(ledNumber);
 					if(i < MAX_LEVEL){
 		                inputSeq[i] = ledNumber;
 		            }
 					i++;
 				}
+				
 		    }
 		    *GPEDS = BTN5_PRESSED;
 		    inputSeq[-1] = i;
@@ -93,8 +117,11 @@ void *generateSequence(void *args){
         switch(state){
         	case START:
 		    	displayMenu(state);
+		    	*GPEDS = *GPEDS;
 				while(*GPEDS != BTN1_PRESSED){
 					*GPEDS = *GPEDS;
+					delay(100);
+					//small delay so GPEDS doesn't lose its value too quickly
 				}
 				level = 3;
 				state = RUNNING;
@@ -102,8 +129,11 @@ void *generateSequence(void *args){
         	case FAIL:
         	case WIN:
         		displayMenu(state);
+        		*GPEDS = *GPEDS;
         		while(*GPEDS != BTN1_PRESSED && *GPEDS != BTN2_PRESSED){
         			*GPEDS = *GPEDS;
+        			delay(100);
+					//small delay so GPEDS doesn't lose its value too quickly
         		}
         		if(*GPEDS == BTN1_PRESSED){
         			state = START;
