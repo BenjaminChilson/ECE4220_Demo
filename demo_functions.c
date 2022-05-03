@@ -113,7 +113,7 @@ void configurePins(){
 int *initializeSequenceArray(int sequenceCount){
     //Define starting sequence whose initial length is stored in index -1,
 	//but has space for an end-game sequence of length MAX_LEVEL
-	int *sequence = malloc(MAX_LEVEL + 1 * sizeof(int));
+	int *sequence = malloc((MAX_LEVEL + 1) * sizeof(int));
 	sequence[0] = sequenceCount;
 	sequence++;
     return sequence;

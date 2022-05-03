@@ -5,11 +5,12 @@ sem_t sequenceReadWrite_control;
 int state = 0;
 
 int main(void){
+	displayVictoryMenu();
     setupBoard();
     int fd = initializeGPEDS();
     int *sequence = initializeSequenceArray(3);
     
-    //initialize semiphore utilized for thread control
+    //initialize semaphore utilized for thread control
     sem_init(&sequenceReadWrite_control, 0 , 1);
     
     pthread_t threads[NUM_THREADS];
@@ -22,6 +23,8 @@ int main(void){
     }
 
 	//necessary memory cleanup at program termination
+	/*recall sequence was initially allocated 1 integer size behind
+	  its current position*/
     free(--sequence);
     close(fd);
 }
@@ -94,6 +97,8 @@ void *userInput(void *args){
         sem_post(&sequenceReadWrite_control);
         usleep(10000);
     }
+    /*recall inputSeq was initially allocated 1 integer size behind
+	  its current position*/
     free(--inputSeq);
     pthread_exit(0);
 }
